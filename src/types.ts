@@ -3,4 +3,5 @@ export interface DotType {
   color: string
   fontWeight: number
   fontSize: number
+  clear: Function
 }
