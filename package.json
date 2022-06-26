@@ -1,20 +1,21 @@
 {
-  "name": "vitesse",
+  "name": "dot-text",
   "version": "1.0.0",
   "packageManager": "pnpm@6.32.3",
-  "description": "vitesse",
+  "description": "dot-text",
   "author": "Simon He",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git + git@github.com:Simon-He95/vitesse.git"
+    "url": "git + git@github.com:Simon-He95/dot-text.git"
   },
   "bugs": {
-    "url": "https://github.com/Simon-He95/vitesse/issues"
+    "url": "https://github.com/Simon-He95/dot-text/issues"
   },
   "keywords": [
-    "vitesse",
-    "vue"
+    "dot-text",
+    "vue",
+    "canvas"
   ],
   "exports": {
     ".": {
