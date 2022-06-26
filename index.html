@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+  function TextPointSet() {
+  }
+  TextPointSet.prototype.points = new Map()
+  TextPointSet.prototype.canvas = document.createElement('canvas');
+  TextPointSet.prototype.ctx = TextPointSet.prototype.canvas.getContext('2d');
+  TextPointSet.prototype.get = function (text) {
+    return this.points.has(text)
+    ?this.points.get(text)
+    :this._createTextPoint(text);
+  }
+  TextPointSet.prototype.execute = function (text,size=50,color='#000',fontWeight=5) {
+    this.originText = text
+    this.fontSize= size
+    this.color = color
+    this.fontWeight = fontWeight
+    text.split('').map( (item)=> this.get(item))
+    return this.combine(text.length)
+  }
+  TextPointSet.prototype._createTextPoint = function (text) {
+    const canvas = this.canvas, ctx = this.ctx, size = 16;
+    this.clearCanvas();
+    canvas.width = canvas.height = size;
+    ctx.font = size + "px SimSun";
+    ctx.fillText(text, 0, 14);
+    var canvasData = ctx.getImageData(0, 0, size, size).data,
+      textPointSet = [];
+    for (let i = 0; i < size; i++) {
+      textPointSet.push(temp = []);
+      for (let j = 0; j < size; j++) {
+        const index = i * size * 4 + j * 4;
+        temp.push( canvasData[index + 3]? 1 : 0);
+      }
+    }
+    this.points.set(text, textPointSet);
+    return textPointSet;
+  }
+  TextPointSet.prototype.clearCanvas = function () {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+  }
+  TextPointSet.prototype.getCanvas = function (points, len) {
+    const canvas = document.createElement('canvas'),
+     ctx = canvas.getContext('2d'),
+    h = points.length,
+    w = points[0].length
+      oneTempLength = this.fontSize / h;
+    canvas.height =this.fontSize 
+    canvas.width = this.fontSize *len;
+    const n = Math.ceil(this.fontSize *len /window.innerWidth);
+    if(this.fontSize *len > window.innerWidth){
+
+    }
+    for (var i = 0; i < h; i++) {
+      for (var j = 0; j < w; j++) {
+        if (points[i][j]) {
+          ctx.beginPath();
+          ctx.arc(oneTempLength * (j + .5), oneTempLength * (i + .5), oneTempLength * this.fontWeight/h, 0, Math.PI * 2)
+          ctx.fillStyle=this.color
+          ctx.fill()
+        }
+      }
+    }
+    return canvas
+  }
+  TextPointSet.prototype.combine =function(len){
+   return this.getCanvas(getCombineDate.call(this),len)
+  }
+
+  function getCombineDate(){
+    const result = [],
+    len = this.originText.length
+    
+    for(let i=0;i<len;i++){
+      this.points.get(this.originText[i]).forEach((item,index)=>{
+        result[index] = (result[index] || []).concat(item)
+     })
+    }
+    return result
+  }
+  var textTest = new TextPointSet();
+  const can = document.createElement('canvas')
+  const canvas =  textTest.execute('你好呀asdasd asdasdsadasdasd',16,'red',5)
+  document.body.appendChild(canvas)
+    </script>
+  </body>
+</html>
