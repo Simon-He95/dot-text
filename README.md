@@ -9,6 +9,7 @@
 - `fontSize`: 字体大小
 - `color`: 字体颜色
 - `fontWeight`: 字体粗细
+-  clear: 是否清除点阵 :(clearCanvas) => clearCanvans()
 
 ## 使用方法
 ```js

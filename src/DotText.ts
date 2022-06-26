@@ -15,16 +15,20 @@ export const DotText = defineComponent({
       default: 'black',
     },
     fontWeight: {
-      type: Number,
+      type: [Number, String],
       default: 5,
     },
     fontSize: {
-      type: Number,
+      type: [Number, String],
       default: 12,
+    },
+    clear: {
+      type: Function,
+      default: () => { },
     },
   },
   setup(props) {
-    const dotText = new DotTextCanvas(props.text, props.fontSize, props.color, props.fontWeight)
+    const dotText = new DotTextCanvas(props.text, +props.fontSize, props.color, +props.fontWeight)
     const dotTextEl = ref<HTMLElement>()
     onMounted(() => {
       const attributes = dotTextEl.value!.attributes
@@ -35,6 +39,7 @@ export const DotText = defineComponent({
       if (p)
         p.replaceChild(dotText.canvas, dotTextEl.value!)
     })
+    props.clear(dotText.clearCanvas.bind(dotText))
     return () => h('div', { ref: dotTextEl })
   },
 }) as DefineComponent<DotType>
