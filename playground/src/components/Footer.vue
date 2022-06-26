@@ -13,7 +13,7 @@ import { isDark, toggleDark } from '~/composables'
       class="icon-btn"
       i-carbon-logo-github
       rel="noreferrer"
-      href="https://github.com/Simon-He95/my-vitesse-app"
+      href="https://github.com/Simon-He95/dot-text"
       target="_blank"
       title="GitHub"
     />
