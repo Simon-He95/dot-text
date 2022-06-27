@@ -1,6 +1,6 @@
 {
   "name": "dot-text",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "packageManager": "pnpm@6.32.3",
   "description": "dot-text",
   "author": "Simon He",
