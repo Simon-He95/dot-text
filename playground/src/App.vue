@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { randomRgb } from 'simon-js-tool'
+import { formateDate, randomDate, randomRgb } from 'simon-js-tool'
 const dotTextel = ref(null)
 const color = ref('red')
+const text = ref('Dot Text')
 let start = null
+const date = ref(formateDate(randomDate()))
 function fn(timestamp) {
-  if (start === null) { start = timestamp }
+  if (start === null) {
+    start = timestamp
+  }
   else {
     const delta = timestamp - start
     if (delta > 1000) {
+      date.value = formateDate(randomDate())
       color.value = randomRgb()
       start = timestamp
     }
@@ -21,13 +26,14 @@ requestAnimationFrame(fn)
   <main font-sans p="x-4 y-10" text="center gray-700 dark:gray-200">
     <dot-text
       ref="dotTextel"
-      text="Dot Text"
+      :text="text"
       :color="color"
       font-size="50"
       font-weight="10"
       ma
     />
     <dot-text text="Hi,Simon" color="grey" font-size="20" font-weight="5" ma m-y-20 />
+    <dot-text :text="date" color="grey" font-size="20" font-weight="5" ma m-y-20 />
     <dot-text text="China No.1" color="grey" font-size="20" font-weight="5" ma m-y-20 />
     <div w-55 overflow-hidden ma>
       <dot-text

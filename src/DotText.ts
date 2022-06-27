@@ -34,7 +34,7 @@ export const DotText = defineComponent({
       update(dotTextEl.value!, dotText.canvas!)
     })
     watch(props, () => {
-      const newDotText = new DotTextCanvas(props.text, +props.fontSize, props.color, +props.fontWeight)
+      const newDotText = dotText.repaint(props.text, +props.fontSize, props.color, +props.fontWeight)
       update(dotTextEl.value!, newDotText.canvas!)
       props.clear(newDotText.clearCanvas.bind(newDotText))
     })
