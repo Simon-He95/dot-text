@@ -1,25 +1,15 @@
 <script setup lang="ts">
-import { formateDate, randomDate, randomRgb } from 'simon-js-tool'
+import { animationFrameWrapper, formateDate, randomDate, randomRgb } from 'simon-js-tool'
 const dotTextel = ref(null)
 const color = ref('red')
 const text = ref('Dot Text')
-let start = null
+const start = null
 const date = ref(formateDate(randomDate()))
-function fn(timestamp) {
-  if (start === null) {
-    start = timestamp
-  }
-  else {
-    const delta = timestamp - start
-    if (delta > 1000) {
-      date.value = formateDate(randomDate())
-      color.value = randomRgb()
-      start = timestamp
-    }
-  }
-  requestAnimationFrame(fn)
-}
-requestAnimationFrame(fn)
+
+animationFrameWrapper(() => {
+  date.value = formateDate(randomDate())
+  color.value = randomRgb()
+})
 
 const textInput = ref('')
 </script>
