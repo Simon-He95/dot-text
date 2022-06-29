@@ -1,27 +1,26 @@
 <script setup lang="ts">
-import { formateDate, randomDate, randomRgb } from 'simon-js-tool'
-const dotTextel = ref(null)
-const color = ref('red')
-const text = ref('Dot Text')
-let start = null
-const date = ref(formateDate(randomDate()))
+import { formateDate, randomDate, randomRgb } from "simon-js-tool";
+const dotTextel = ref(null);
+const color = ref("red");
+const text = ref("Dot Text");
+let start = null;
+const date = ref(formateDate(randomDate()));
 function fn(timestamp) {
   if (start === null) {
-    start = timestamp
-  }
-  else {
-    const delta = timestamp - start
+    start = timestamp;
+  } else {
+    const delta = timestamp - start;
     if (delta > 1000) {
-      date.value = formateDate(randomDate())
-      color.value = randomRgb()
-      start = timestamp
+      date.value = formateDate(randomDate());
+      color.value = randomRgb();
+      start = timestamp;
     }
   }
-  requestAnimationFrame(fn)
+  requestAnimationFrame(fn);
 }
-requestAnimationFrame(fn)
+requestAnimationFrame(fn);
 
-const textInput = ref('')
+const textInput = ref("");
 </script>
 
 <template>
@@ -30,7 +29,7 @@ const textInput = ref('')
       ref="dotTextel"
       :text="text"
       :color="color"
-      font-size="50"
+      font-size="40"
       font-weight="10"
       ma
     />
@@ -57,8 +56,8 @@ const textInput = ref('')
       border-rd-1
       indent-2
       color-black
-    >
-    <dot-text :text="textInput" color="grey" font-size="40" font-weight="5" ma m-y-20 />
+    />
+    <dot-text :text="textInput" color="grey" font-size="40" font-weight="5" ma m-y-5 />
     <Footer />
   </main>
 </template>
