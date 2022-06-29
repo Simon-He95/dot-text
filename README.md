@@ -1,5 +1,6 @@
 ## Dot Text
 [live demo](https://dot-text.hejian.club/)
+可以在线输入,查看效果
 
 ## 功能
 一个简单的文字转换为点阵的形式组件
