@@ -12,6 +12,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
+
 app.use(router)
 app.component('DotText', DotText)
 app.mount('#app')

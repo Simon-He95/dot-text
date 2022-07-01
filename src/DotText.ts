@@ -1,5 +1,6 @@
 import type { DefineComponent } from 'vue'
 import { defineComponent, h, onMounted, ref, watch } from 'vue'
+import { animationFrameWrapper } from 'simon-js-tool'
 import { DotTextCanvas } from './DotTextCanvas'
 import type { DotType } from './types'
 
@@ -26,17 +27,32 @@ export const DotText = defineComponent({
       type: Function,
       default: () => { },
     },
+    onload: {
+      type: Function,
+      default: () => { },
+    },
   },
   setup(props) {
     const dotText = new DotTextCanvas(props.text, +props.fontSize, props.color, +props.fontWeight)
     const dotTextEl = ref<HTMLElement>()
     onMounted(() => {
       update(dotTextEl.value!, dotText.canvas!)
+      const stop = animationFrameWrapper(() => {
+        if (dotText.status === 'success')
+          props.onload?.()
+        stop()
+      })
     })
-    watch(props, () => {
-      const newDotText = dotText.repaint(props.text, +props.fontSize, props.color, +props.fontWeight)
-      update(dotTextEl.value!, newDotText.canvas!)
-      props.clear(newDotText.clearCanvas.bind(newDotText))
+    watch(props, async () => {
+      const newDotText = await dotText.repaint(props.text, +props.fontSize, props.color, +props.fontWeight)
+      const stop = animationFrameWrapper(() => {
+        if (newDotText.status === 'success') {
+          update(dotTextEl.value!, newDotText.canvas!)
+          props.clear(newDotText.clearCanvas.bind(newDotText))
+          props.onload?.()
+          stop()
+        }
+      })
     })
     props.clear(dotText.clearCanvas.bind(dotText))
     return () => h('div', { ref: dotTextEl })

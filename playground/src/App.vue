@@ -6,12 +6,15 @@ const text = ref('Dot Text')
 const start = null
 const date = ref(formateDate(randomDate()))
 
-animationFrameWrapper(() => {
-  date.value = formateDate(randomDate())
-  color.value = randomRgb()
-})
-
 const textInput = ref('')
+
+function onload() {
+  const stop = animationFrameWrapper(() => {
+    date.value = formateDate(randomDate())
+    color.value = randomRgb()
+    stop()
+  })
+}
 </script>
 
 <template>
@@ -25,7 +28,15 @@ const textInput = ref('')
       ma
     />
     <dot-text text="Hi,Simon" color="grey" font-size="20" font-weight="5" ma m-y-20 />
-    <dot-text :text="date" color="grey" font-size="20" font-weight="5" ma m-y-20 />
+    <dot-text
+      :text="date"
+      color="grey"
+      :onload="onload"
+      font-size="20"
+      font-weight="5"
+      ma
+      m-y-20
+    />
     <dot-text text="China No.1" color="grey" font-size="20" font-weight="5" ma m-y-10 />
     <div w-55 overflow-hidden ma>
       <dot-text
