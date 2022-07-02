@@ -18,18 +18,21 @@ export class DotTextCanvas {
   }
 
   createTextPoint(text: string) {
-    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d')!; const size = 16
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')!
+    const size = 16
     canvas.width = canvas.height = size
     ctx.font = `${size}px SimSun`
     ctx.fillText(text, 0, 14)
-    const canvasData = ctx.getImageData(0, 0, size, size).data
+    const { data: imageData, width, height } = ctx.getImageData(0, 0, size, size)
+
     const textPointSet = []
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < height; i++) {
       const temp: number[] = []
       textPointSet.push(temp)
-      for (let j = 0; j < size; j++) {
-        const index = i * size * 4 + j * 4
-        temp.push(canvasData[index + 3] ? 1 : 0)
+      for (let j = 0; j < width; j++) {
+        const pxStartIndex = (i * width * 4 + j * 4)
+        temp.push(imageData[pxStartIndex + 3] ? 1 : 0)
       }
     }
     this.points.set(text, textPointSet)
@@ -82,7 +85,7 @@ export class DotTextCanvas {
         }
       })
     }
-    idleCallbackWrapper(tasks, 1000, () => this.status = 'success')
+    idleCallbackWrapper(tasks, () => this.status = 'success')
   }
 
   repaint(this: any, text: string, fontSize: number, color: string, fontWeight: number): DotTextCanvas {
