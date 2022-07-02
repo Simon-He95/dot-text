@@ -33,7 +33,7 @@ function onload() {
       color="grey"
       :onload="onload"
       font-size="20"
-      font-weight="5"
+      font-weight="20"
       ma
       m-y-20
     />
@@ -43,7 +43,7 @@ function onload() {
         text="壹 贰 叁 肆 伍 陆 柒 捌 玖 拾 百 千 万 円"
         color="grey"
         font-size="30"
-        font-weight="5"
+        font-weight="10"
         ma
         m-y-5
         class="dot-text-wrap"
@@ -59,7 +59,7 @@ function onload() {
       indent-2
       color-black
     >
-    <dot-text :text="textInput" color="grey" font-size="40" font-weight="5" ma m-y-5 />
+    <dot-text :text="textInput" color="grey" font-size="40" font-weight="10" ma m-y-5 />
     <Footer />
   </main>
 </template>

@@ -20,10 +20,11 @@ export class DotTextCanvas {
   createTextPoint(text: string) {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')!
-    const size = 16
+    const pRatio = window.devicePixelRatio || 1
+    const size = 16 * pRatio
     canvas.width = canvas.height = size
     ctx.font = `${size}px SimSun`
-    ctx.fillText(text, 0, 14)
+    ctx.fillText(text, 0, 14 * pRatio)
     const { data: imageData, width, height } = ctx.getImageData(0, 0, size, size)
 
     const textPointSet = []
