@@ -1,6 +1,6 @@
 import type { DefineComponent } from 'vue'
 import { defineComponent, h, onMounted, ref, watch } from 'vue'
-import { animationFrameWrapper } from 'simon-js-tool'
+import { useRaf } from 'lazy-js-utils'
 import { DotTextCanvas } from './DotTextCanvas'
 import type { DotType } from './types'
 
@@ -37,7 +37,7 @@ export const DotText = defineComponent({
     const dotTextEl = ref<HTMLElement>()
     onMounted(() => {
       update(dotTextEl.value!, dotText.canvas!)
-      const stop = animationFrameWrapper(() => {
+      const stop = useRaf(() => {
         if (dotText.status === 'success')
           props.onload?.()
         stop()
@@ -45,7 +45,7 @@ export const DotText = defineComponent({
     })
     watch(props, async () => {
       const newDotText = await dotText.repaint(props.text, +props.fontSize, props.color, +props.fontWeight)
-      const stop = animationFrameWrapper(() => {
+      const stop = useRaf(() => {
         if (newDotText.status === 'success') {
           update(dotTextEl.value!, newDotText.canvas!)
           props.clear(newDotText.clearCanvas.bind(newDotText))

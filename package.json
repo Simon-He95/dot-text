@@ -46,7 +46,9 @@
     "release": "bumpp --commit --tag --push && git push origin --tags -f && npm publish"
   },
   "dependencies": {
+    "@vitejs/plugin-vue": "^4.3.3",
     "@vueuse/core": "^8.1.1",
+    "lazy-js-utils": "^0.0.62",
     "vue": "^3.2.36"
   },
   "devDependencies": {

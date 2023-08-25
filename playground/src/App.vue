@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { animationFrameWrapper, formateDate, randomDate, randomRgb } from 'simon-js-tool'
+import { formateDate, randomDate, randomRgba, useRaf } from 'lazy-js-utils'
 const dotTextel = ref(null)
 const color = ref('red')
 const text = ref('Dot Text')
-const start = null
 const date = ref(formateDate(randomDate()))
 
 const textInput = ref('')
 
 function onload() {
-  const stop = animationFrameWrapper(() => {
+  const stop = useRaf(() => {
     date.value = formateDate(randomDate())
-    color.value = randomRgb()
+    color.value = randomRgba()
     stop()
   })
 }

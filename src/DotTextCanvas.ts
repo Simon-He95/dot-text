@@ -1,4 +1,5 @@
-import { idleCallbackWrapper, memorizeFn } from 'simon-js-tool'
+import { memorizeFn, useRic } from 'lazy-js-utils'
+
 export class DotTextCanvas {
   canvas: HTMLCanvasElement = document.createElement('canvas')
   ctx: CanvasRenderingContext2D = this.canvas.getContext('2d')!
@@ -86,7 +87,9 @@ export class DotTextCanvas {
         }
       })
     }
-    idleCallbackWrapper(tasks, () => this.status = 'success')
+    useRic(tasks, {
+      callback: () => this.status = 'success',
+    })
   }
 
   repaint(this: any, text: string, fontSize: number, color: string, fontWeight: number): DotTextCanvas {
