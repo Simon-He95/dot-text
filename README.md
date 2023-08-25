@@ -1,5 +1,5 @@
 ## Dot Text
-[live demo](https://dot-text.hejian.club/)
+[live demo](https://dot-text.netlify.app/)
 可以在线输入,查看效果
 
 ## 功能
