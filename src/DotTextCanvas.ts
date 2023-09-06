@@ -1,4 +1,5 @@
 import { memorizeFn, useRic } from 'lazy-js-utils'
+import type { Options } from './types'
 
 export class DotTextCanvas {
   canvas: HTMLCanvasElement = document.createElement('canvas')
@@ -10,11 +11,14 @@ export class DotTextCanvas {
   fontWeight: number
   textPointSet: Array<number[]> = []
   status = 'pending'
-  constructor(text: string, fontSize: number, color: string, fontWeight: number) {
+  customShape?: (ctx: CanvasRenderingContext2D, posX: number, posY: number) => void
+  constructor(options: Options) {
+    const { text, fontSize, color, fontWeight, customShape } = options
     this.originText = text
     this.fontSize = fontSize
     this.color = color
     this.fontWeight = fontWeight
+    this.customShape = customShape
     this.executor()
   }
 
@@ -74,33 +78,41 @@ export class DotTextCanvas {
     const size = oneTempLength * this.fontWeight / h
     this.canvas.height = this.fontSize
     this.canvas.width = this.fontSize * this.originText.length
-
     for (let i = 0; i < h; i++) {
       tasks.push(() => {
         for (let j = 0; j < w; j++) {
           if (this.textPointSet[i][j]) {
             this.ctx.beginPath()
-            this.ctx.arc(getPoint(j), getPoint(i), size, 0, Math.PI * 2)
-            this.ctx.fillStyle = this.color
-            this.ctx.fill()
+            if (this.customShape) {
+              this.customShape(this.ctx, getPoint(j), getPoint(i))
+            }
+            else {
+              this.ctx.arc(getPoint(j), getPoint(i), size, 0, Math.PI * 2)
+              this.ctx.fillStyle = this.color
+              this.ctx.fill()
+            }
           }
         }
       })
     }
     useRic(tasks, {
-      callback: () => this.status = 'success',
+      callback: () => {
+        this.status = 'success'
+      },
     })
   }
 
-  repaint(this: any, text: string, fontSize: number, color: string, fontWeight: number): DotTextCanvas {
+  repaint(options: Options): DotTextCanvas {
     this.status = 'pending'
-    // 如果text相同
-    if (this.originText !== text)
-      return new DotTextCanvas(text, fontSize, color, fontWeight)
 
-    this.fontSize = fontSize
-    this.color = color
-    this.fontWeight = fontWeight
+    // 如果text相同
+    if (this.originText !== options.text)
+      return new DotTextCanvas(options)
+
+    this.fontSize = options.fontSize
+    this.color = options.color
+    this.fontWeight = options.fontWeight
+    this.customShape = options.customShape
     this.clearCanvas()
     this.getCanvas()
     return this
