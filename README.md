@@ -6,11 +6,17 @@
 一个简单的文字转换为点阵的形式组件
 
 ## 参数
-- `text`: 文字
-- `fontSize`: 字体大小
-- `color`: 字体颜色
-- `fontWeight`: 字体粗细
--  clear: 是否清除点阵 :(clearCanvas) => clearCanvans()
+```typescript
+interface DotType {
+  text: string /* 文字内容 */
+  color?: string /* 颜色 */
+  fontWeight?: number /* 粗细 */
+  fontSize?: number /* 大小 */
+  clear?: Function /* 清空 */
+  onload?: Function /* 渲染完成 */
+  customShape?: (ctx: CanvasRenderingContext2D, posX: number, posY: number) => void /* 自定义图形 */
+}
+```
 
 ## 使用方法
 ```js
