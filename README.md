@@ -12,8 +12,8 @@ interface DotType {
   color?: string /* 颜色 */
   fontWeight?: number /* 粗细 */
   fontSize?: number /* 大小 */
-  clear?: Function /* 清空 */
-  onload?: Function /* 渲染完成 */
+  clear?: (callback: () => void) => void /* 清空 */
+  onload?: () => void /* 渲染完成 */
   customShape?: (ctx: CanvasRenderingContext2D, posX: number, posY: number) => void /* 自定义图形 */
 }
 ```
@@ -22,6 +22,7 @@ interface DotType {
 ```js
 // main.ts
 import { DotText } from 'dot-text'
+
 app.component('DotText', DotText)
 ```
 ```html

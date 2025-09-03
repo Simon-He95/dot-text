@@ -1,8 +1,8 @@
 import type { DefineComponent, PropType } from 'vue'
-import { defineComponent, h, onMounted, ref, watch } from 'vue'
-import { useRaf } from 'lazy-js-utils'
-import { DotTextCanvas } from './DotTextCanvas'
 import type { DotType, Options } from './types'
+import { useRaf } from 'lazy-js-utils'
+import { defineComponent, h, onMounted, ref, watch } from 'vue'
+import { DotTextCanvas } from './DotTextCanvas'
 
 export const DotText = defineComponent({
   props: {
@@ -41,10 +41,10 @@ export const DotText = defineComponent({
   setup(props) {
     const dotText = new DotTextCanvas({
       text: props.text,
-      fontSize: +props.fontSize,
-      color: props.color,
-  fontWeight: +props.fontWeight,
-  animation: props.animation,
+      fontSize: +props.fontSize!,
+      color: props.color!,
+      fontWeight: +props.fontWeight!,
+      animation: props.animation,
       customShape: props.customShape,
     })
     const dotTextEl = ref<HTMLElement>()
@@ -60,22 +60,22 @@ export const DotText = defineComponent({
     watch(props, async () => {
       const newDotText = await dotText.repaint({
         text: props.text,
-        fontSize: +props.fontSize,
-        color: props.color,
-        fontWeight: +props.fontWeight,
-  animation: props.animation,
+        fontSize: +props.fontSize!,
+        color: props.color!,
+        fontWeight: +props.fontWeight!,
+        animation: props.animation,
         customShape: props.customShape,
       })
       const stop = useRaf(() => {
         if (newDotText.status === 'success') {
           update(dotTextEl.value!, newDotText.canvas!)
-          props.clear(newDotText.clearCanvas.bind(newDotText))
+          props.clear!(newDotText.clearCanvas.bind(newDotText))
           props.onload?.()
           stop()
         }
       })
     })
-    props.clear(dotText.clearCanvas.bind(dotText))
+    props.clear!(dotText.clearCanvas.bind(dotText))
     return () => h('div', { ref: dotTextEl })
   },
 }) as DefineComponent<DotType>

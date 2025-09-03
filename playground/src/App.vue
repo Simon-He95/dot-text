@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { formateDate, randomDate, randomRgba, useRaf } from 'lazy-js-utils'
+
 const dotTextel = ref(null)
 const color = ref('red')
 const text = ref('Dot Text')
@@ -12,26 +13,30 @@ function onload() {
     date.value = formateDate(randomDate())
     color.value = randomRgba(1)
     stop()
-  }, 1000)
+  }, {
+    delta: 1000,
+  })
 }
-const onShape1 = (ctx, x, y) => {
+function onShape1(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.font = '10px serif'
   ctx.fillText('🐼', x, y)
 }
-const onShape2 = (ctx, x, y) => {
+function onShape2(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.font = '10px serif'
   ctx.fillText('💩', x, y)
 }
 const text1 = ref('')
-const words = ['你','好','鸭']
+const words = ['你', '好', '鸭']
 const i = ref(0)
-useRaf(()=>{
+useRaf(() => {
   text1.value = words[i.value]
   i.value = i.value + 1
-  if(i.value >= words.length){
+  if (i.value >= words.length) {
     i.value = 0
   }
-},1000)
+}, {
+  delta: 1000,
+})
 </script>
 
 <template>
@@ -39,14 +44,14 @@ useRaf(()=>{
     <dot-text ref="dotTextel" :text="text" :color="color" font-size="40" font-weight="10" ma />
     <dot-text text="China No.1" color="grey" font-size="20" font-weight="44" ma m-y-10 />
     <!-- <dot-text :text="text1" color="green" font-size="40" font-weight="24" ma m-y-10 /> -->
-      <dot-text
-        :text="text1"
-        :fontSize="80"
-        :fontWeight="10"
-        color="grey"
-        ma
-        :animation="{ type: 'random-fly-in', duration: 600 }"
-      />
+    <dot-text
+      :text="text1"
+      :font-size="80"
+      :font-weight="10"
+      color="grey"
+      ma
+      :animation="{ type: 'morph', duration: 600 }"
+    />
     <dot-text :text="date" color="grey" :onload="onload" font-size="20" font-weight="20" ma m-y-10 />
     <dot-text text="熊猫哥" color="grey" font-size="100" :custom-shape="onShape1" font-weight="10" ma m-y-5 />
     <dot-text text="熊猫哥" color="grey" font-size="500" :custom-shape="onShape2" font-weight="10" ma m-y-5 />

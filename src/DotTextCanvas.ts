@@ -1,5 +1,5 @@
-import { memorizeFn, useRic } from 'lazy-js-utils'
 import type { Options } from './types'
+import { memorizeFn, useRic } from 'lazy-js-utils'
 
 export class DotTextCanvas {
   canvas: HTMLCanvasElement = document.createElement('canvas')
@@ -12,9 +12,9 @@ export class DotTextCanvas {
   textPointSet: Array<number[]> = []
   status = 'pending'
   customShape?: (ctx: CanvasRenderingContext2D, posX: number, posY: number) => void
-  animation?: { type?: 'random-fly-in'; duration?: number }
+  animation?: { type?: 'random-fly-in' | 'morph', duration?: number }
   // cache previous particle positions for morph animations
-  lastParticles: { x: number; y: number }[] = []
+  lastParticles: { x: number, y: number }[] = []
   constructor(options: Options) {
     const { text, fontSize, color, fontWeight, customShape } = options
     this.originText = text
@@ -22,7 +22,7 @@ export class DotTextCanvas {
     this.color = color
     this.fontWeight = fontWeight
     this.customShape = customShape
-  this.animation = options.animation
+    this.animation = options.animation
     this.executor()
   }
 
@@ -77,7 +77,7 @@ export class DotTextCanvas {
     const h = this.textPointSet.length
     const w = this.textPointSet[0].length
     const oneTempLength = this.fontSize / h
-    const tasks: Function[] = []
+    const tasks: (() => void)[] = []
     const getPoint = memorizeFn((i: number) => oneTempLength * (i + 0.5))
     const size = oneTempLength * this.fontWeight / h
     this.canvas.height = this.fontSize
@@ -102,7 +102,7 @@ export class DotTextCanvas {
     useRic(tasks, {
       callback: () => {
         this.status = 'success'
-        // after drawing the static dot layout, if animation requested, run it
+        // after drawing the static dot layout, only run random fly-in when explicitly requested
         if (this.animation?.type === 'random-fly-in') {
           this.runRandomFlyIn(this.animation.duration || 1000)
         }
@@ -111,29 +111,31 @@ export class DotTextCanvas {
   }
 
   // collect particle positions from current canvas (alpha pixels)
-  collectParticles(): { x: number; y: number }[] {
+  collectParticles(): { x: number, y: number }[] {
     const w = this.canvas.width
     const h = this.canvas.height
-    if (w <= 0 || h <= 0) return []
+    if (w <= 0 || h <= 0)
+      return []
     let data: Uint8ClampedArray
     try {
       data = this.ctx.getImageData(0, 0, w, h).data
     }
-    catch (e) {
+    catch {
       return []
     }
-    const particles: { x: number; y: number }[] = []
+    const particles: { x: number, y: number }[] = []
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         const idx = (y * w + x) * 4
-        if (data[idx + 3]) particles.push({ x: x + 0.5, y: y + 0.5 })
+        if (data[idx + 3])
+          particles.push({ x: x + 0.5, y: y + 0.5 })
       }
     }
     return particles
   }
 
   // Morph particles from oldPositions -> current canvas positions
-  runMorphAnimation(oldPositions: { x: number; y: number }[], duration: number) {
+  runMorphAnimation(oldPositions: { x: number, y: number }[], duration: number) {
     const newPositions = this.collectParticles()
     if (!oldPositions || oldPositions.length === 0 || newPositions.length === 0) {
       // fallback to random fly-in if no previous positions
@@ -143,7 +145,7 @@ export class DotTextCanvas {
 
     // map particles: simple strategy - pair by index, reuse or randomize if counts differ
     const maxLen = Math.max(oldPositions.length, newPositions.length)
-    const pairs: { sx: number; sy: number; tx: number; ty: number }[] = []
+    const pairs: { sx: number, sy: number, tx: number, ty: number }[] = []
     for (let i = 0; i < maxLen; i++) {
       const o = oldPositions[i % oldPositions.length]
       const n = newPositions[i % newPositions.length]
@@ -164,7 +166,9 @@ export class DotTextCanvas {
         const y = this.lerp(p.sy, p.ty, t)
         ctx.fillRect(x, y, 1, 1)
       }
-      if (t < 1) requestAnimationFrame(draw)
+      if (t < 1) {
+        requestAnimationFrame(draw)
+      }
       else {
         // final redraw original method
         ctx.clearRect(0, 0, w, h)
@@ -177,7 +181,9 @@ export class DotTextCanvas {
           for (let j = 0; j < wCells; j++) {
             if (this.textPointSet[i][j]) {
               ctx.beginPath()
-              if (this.customShape) this.customShape(ctx, getPoint(j), getPoint(i))
+              if (this.customShape) {
+                this.customShape(ctx, getPoint(j), getPoint(i))
+              }
               else {
                 ctx.arc(getPoint(j), getPoint(i), size, 0, Math.PI * 2)
                 ctx.fillStyle = this.color
@@ -186,6 +192,142 @@ export class DotTextCanvas {
             }
           }
         }
+      }
+    }
+    requestAnimationFrame(draw)
+  }
+
+  // compute pixel positions for a given textPointSet using an offscreen canvas
+  positionsFromTextPointSet(textPointSet: number[][]) {
+    const hCells = textPointSet.length
+    const wCells = textPointSet[0].length
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = this.fontSize * this.originText.length
+    tempCanvas.height = this.fontSize
+    const tctx = tempCanvas.getContext('2d')!
+    const oneTempLength = this.fontSize / hCells
+    const getPoint = (i: number) => oneTempLength * (i + 0.5)
+    const size = oneTempLength * this.fontWeight / hCells
+    tctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height)
+    tctx.fillStyle = this.color
+    for (let i = 0; i < hCells; i++) {
+      for (let j = 0; j < wCells; j++) {
+        if (textPointSet[i][j]) {
+          tctx.beginPath()
+          if (this.customShape) {
+            this.customShape(tctx, getPoint(j), getPoint(i))
+          }
+          else {
+            tctx.arc(getPoint(j), getPoint(i), size, 0, Math.PI * 2)
+            tctx.fill()
+          }
+        }
+      }
+    }
+    let data: Uint8ClampedArray
+    try {
+      data = tctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height).data
+    }
+    catch {
+      return []
+    }
+    const particles: { x: number, y: number }[] = []
+    const w = tempCanvas.width
+    const h = tempCanvas.height
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = (y * w + x) * 4
+        if (data[idx + 3])
+          particles.push({ x: x + 0.5, y: y + 0.5 })
+      }
+    }
+    return particles
+  }
+
+  // Morph between two explicit particle arrays and finalize to finalTextPointSet
+  runMorphBetween(oldPositions: { x: number, y: number }[], newPositions: { x: number, y: number }[], duration: number, finalTextPointSet: number[][]) {
+    if (!oldPositions || oldPositions.length === 0 || !newPositions || newPositions.length === 0) {
+      // fallback: set final layout and run random fly-in to populate lastParticles
+      this.textPointSet = finalTextPointSet
+      this.canvas.height = this.fontSize
+      this.canvas.width = this.fontSize * this.originText.length
+      const ctx = this.ctx
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+      const hCells = this.textPointSet.length
+      const wCells = this.textPointSet[0].length
+      const oneTempLength = this.fontSize / hCells
+      const getPoint = (i: number) => oneTempLength * (i + 0.5)
+      const size = oneTempLength * this.fontWeight / hCells
+      for (let i = 0; i < hCells; i++) {
+        for (let j = 0; j < wCells; j++) {
+          if (this.textPointSet[i][j]) {
+            ctx.beginPath()
+            if (this.customShape) {
+              this.customShape(ctx, getPoint(j), getPoint(i))
+            }
+            else {
+              ctx.arc(getPoint(j), getPoint(i), size, 0, Math.PI * 2)
+              ctx.fillStyle = this.color
+              ctx.fill()
+            }
+          }
+        }
+      }
+      this.runRandomFlyIn(duration)
+      return
+    }
+
+    const maxLen = Math.max(oldPositions.length, newPositions.length)
+    const pairs: { sx: number, sy: number, tx: number, ty: number }[] = []
+    for (let i = 0; i < maxLen; i++) {
+      const o = oldPositions[i % oldPositions.length]
+      const n = newPositions[i % newPositions.length]
+      pairs.push({ sx: o.x, sy: o.y, tx: n.x, ty: n.y })
+    }
+
+    const w = this.canvas.width
+    const h = this.canvas.height
+    const ctx = this.ctx
+    const start = performance.now()
+    const draw = (now: number) => {
+      const t = Math.min(1, (now - start) / duration)
+      ctx.clearRect(0, 0, w, h)
+      ctx.fillStyle = this.color
+      for (let i = 0; i < pairs.length; i++) {
+        const p = pairs[i]
+        const x = this.lerp(p.sx, p.tx, t)
+        const y = this.lerp(p.sy, p.ty, t)
+        ctx.fillRect(x, y, 1, 1)
+      }
+      if (t < 1) {
+        requestAnimationFrame(draw)
+      }
+      else {
+        // finalize: set textPointSet to final and draw crisp dots
+        this.textPointSet = finalTextPointSet
+        ctx.clearRect(0, 0, w, h)
+        const hCells = this.textPointSet.length
+        const wCells = this.textPointSet[0].length
+        const oneTempLength = this.fontSize / hCells
+        const getPoint = (i: number) => oneTempLength * (i + 0.5)
+        const size = oneTempLength * this.fontWeight / hCells
+        for (let i = 0; i < hCells; i++) {
+          for (let j = 0; j < wCells; j++) {
+            if (this.textPointSet[i][j]) {
+              ctx.beginPath()
+              if (this.customShape) {
+                this.customShape(ctx, getPoint(j), getPoint(i))
+              }
+              else {
+                ctx.arc(getPoint(j), getPoint(i), size, 0, Math.PI * 2)
+                ctx.fillStyle = this.color
+                ctx.fill()
+              }
+            }
+          }
+        }
+        // capture particles for next morph
+        this.lastParticles = this.collectParticles()
       }
     }
     requestAnimationFrame(draw)
@@ -200,15 +342,16 @@ export class DotTextCanvas {
     // build particle list from current canvas pixels that have alpha
     const w = this.canvas.width
     const h = this.canvas.height
-    if (w <= 0 || h <= 0) return
+    if (w <= 0 || h <= 0)
+      return
     let imageData: ImageData
     try {
       imageData = this.ctx.getImageData(0, 0, w, h)
     }
-    catch (e) {
+    catch {
       return
     }
-    const particles: { tx: number; ty: number; sx: number; sy: number }[] = []
+    const particles: { tx: number, ty: number, sx: number, sy: number }[] = []
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         const idx = (y * w + x) * 4
@@ -290,20 +433,49 @@ export class DotTextCanvas {
       }
     }
     requestAnimationFrame(draw)
+    // record lastParticles after animation completes
+    setTimeout(() => {
+      this.lastParticles = this.collectParticles()
+    }, duration + 20)
   }
 
   repaint(options: Options): DotTextCanvas {
     this.status = 'pending'
 
-    // 如果text相同
-    if (this.originText !== options.text)
-      return new DotTextCanvas(options)
+    const duration = options.animation?.duration || 1000
+    const textChanged = this.originText !== options.text
 
-  this.fontSize = options.fontSize
-  this.color = options.color
-  this.fontWeight = options.fontWeight
-  this.customShape = options.customShape
-  this.animation = options.animation
+    this.fontSize = options.fontSize
+    this.color = options.color
+    this.fontWeight = options.fontWeight
+    this.customShape = options.customShape
+    this.animation = options.animation
+
+    if (textChanged) {
+      // if morph animation explicitly requested, do particle morph from current canvas
+      if (options.animation?.type === 'morph') {
+        // capture current visible particles
+        const oldPositions = this.collectParticles()
+
+        // prepare new text point set
+        this.originText = options.text
+        this.originText.split('').forEach(ch => this.getText(ch))
+        const newTextPointSet = this.combineText()
+
+        // set canvas size to match new text
+        this.canvas.height = this.fontSize
+        this.canvas.width = this.fontSize * this.originText.length
+
+        // compute target positions and run morph
+        const newPositions = this.positionsFromTextPointSet(newTextPointSet)
+        this.runMorphBetween(oldPositions, newPositions, duration, newTextPointSet)
+        return this
+      }
+
+      // default (when not morph): create a new DotTextCanvas instance to re-render
+      return new DotTextCanvas(options)
+    }
+
     this.clearCanvas()
     this.getCanvas()
     return this
