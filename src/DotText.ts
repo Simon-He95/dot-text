@@ -23,6 +23,9 @@ export const DotText = defineComponent({
       type: [Number, String],
       default: 12,
     },
+    animation: {
+      type: Object as PropType<Options['animation']>,
+    },
     clear: {
       type: Function,
       default: () => { },
@@ -40,7 +43,8 @@ export const DotText = defineComponent({
       text: props.text,
       fontSize: +props.fontSize,
       color: props.color,
-      fontWeight: +props.fontWeight,
+  fontWeight: +props.fontWeight,
+  animation: props.animation,
       customShape: props.customShape,
     })
     const dotTextEl = ref<HTMLElement>()
@@ -59,6 +63,7 @@ export const DotText = defineComponent({
         fontSize: +props.fontSize,
         color: props.color,
         fontWeight: +props.fontWeight,
+  animation: props.animation,
         customShape: props.customShape,
       })
       const stop = useRaf(() => {

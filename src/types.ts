@@ -6,6 +6,14 @@ export interface DotType {
   clear?: Function
   onload?: Function
   customShape?: (ctx: CanvasRenderingContext2D, posX: number, posY: number) => void
+  /**
+   * animation controls entry/exit or other animations.
+   * Example: { type: 'random-fly-in', duration: 1200 }
+   */
+  animation?: {
+    type?: 'random-fly-in'
+    duration?: number
+  }
 }
 
 export interface Options {
@@ -14,4 +22,8 @@ export interface Options {
   color: string
   fontWeight: number
   customShape?: (ctx: CanvasRenderingContext2D, posX: number, posY: number) => void
+  animation?: {
+    type?: 'random-fly-in'
+    duration?: number
+  }
 }
