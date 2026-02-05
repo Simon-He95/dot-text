@@ -42,6 +42,42 @@ useRaf(() => {
 <template>
   <main font-sans p="x-4 y-10" text="center gray-700 dark:gray-200" w-full>
     <dot-text ref="dotTextel" :text="text" :color="color" font-size="40" font-weight="10" ma />
+    <dot-text
+      text="Hover Me"
+      color="grey"
+      :font-size="80"
+      :font-weight="10"
+      ma
+      m-y-10
+      :animation="{ type: 'mouse-repel', radius: 140, ghostOpacity: 0.2, maxOffset: 18 }"
+    />
+    <dot-text
+      text="Click Boom"
+      color="grey"
+      :font-size="80"
+      :font-weight="10"
+      ma
+      m-y-10
+      :animation="{ type: 'click-explode', radius: 150, strength: 2600, ghostOpacity: 0.2, maxOffset: 22 }"
+    />
+    <dot-text
+      text="Wave"
+      color="grey"
+      :font-size="90"
+      :font-weight="10"
+      ma
+      m-y-10
+      :animation="{ type: 'wave', amplitude: 6, frequency: 0.022, speed: 1.4, ghostOpacity: 0.22 }"
+    />
+    <dot-text
+      text="Breath"
+      color="grey"
+      :font-size="90"
+      :font-weight="10"
+      ma
+      m-y-10
+      :animation="{ type: 'breath', amplitude: 0.04, speed: 1.2, ghostOpacity: 0.18 }"
+    />
     <dot-text text="China No.1" color="grey" font-size="20" font-weight="44" ma m-y-10 />
     <!-- <dot-text :text="text1" color="green" font-size="40" font-weight="24" ma m-y-10 /> -->
     <dot-text
